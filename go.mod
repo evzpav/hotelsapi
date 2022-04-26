@@ -1,4 +1,4 @@
-module hotel-crud
+module hotelsapi
 
 go 1.17
 
