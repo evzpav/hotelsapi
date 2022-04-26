@@ -19,4 +19,4 @@ run-postgres: build-postgres  ##@postgres run postgres on docker
 	
 run:
 	POSTGRES_URL=$(POSTGRES_URL) \
-	go run main.go
+	go run cmd/main.go

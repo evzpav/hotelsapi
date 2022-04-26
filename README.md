@@ -26,3 +26,4 @@ Exemplo de API em Golang usando [Gorilla Mux](https://github.com/gorilla/mux) e 
     - Criar tabela no Postgres init.sql
     - Criar insert com GORM
     - Criar select com GORM
+3) Refatorar em pacotes
