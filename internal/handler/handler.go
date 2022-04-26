@@ -1,66 +1,30 @@
-package main
+package handler
 
 import (
 	"encoding/json"
 	"fmt"
+	"hotelsapi/internal/domain"
 	"io/ioutil"
-	"log"
 	"net/http"
-	"os"
-
-	"github.com/gorilla/mux"
-	"gorm.io/driver/postgres"
-	"gorm.io/gorm"
 )
-
-var (
-	postgresURL string = os.Getenv("POSTGRES_URL")
-)
-
-type Hotel struct {
-	ID            int     `json:"id"`
-	Name          string  `json:"name"`
-	City          string  `json:"city"`
-	NrOfEmployees int     `json:"nrOfEmployees"`
-	Revenue       float64 `json:"revenue"`
-	Active        bool    `json:"active"`
-}
 
 type Handler struct {
-	db *gorm.DB
+	hotelService domain.HotelService
 }
 
-func NewHandler(db *gorm.DB) *Handler {
+func New(hotelService domain.HotelService) *Handler {
 	return &Handler{
-		db: db,
+		hotelService: hotelService,
 	}
-}
-
-func main() {
-	r := mux.NewRouter()
-	fmt.Println(postgresURL)
-	db, err := gorm.Open(postgres.Open(postgresURL), &gorm.Config{})
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	h := NewHandler(db)
-
-	r.HandleFunc("/hotels", h.GetHotels).Methods(http.MethodGet)
-	r.HandleFunc("/hotels", h.CreateHotels).Methods(http.MethodPost)
-	http.ListenAndServe(":7070", r)
 }
 
 func (h *Handler) GetHotels(w http.ResponseWriter, r *http.Request) {
 	queryParams := r.URL.Query()
 	city := queryParams.Get("city")
 
-	fmt.Println(city)
+	fmt.Printf("City query param: %s\n", city)
 
-	var hotels []*Hotel
-	err := h.db.Table("hotels").
-		Find(&hotels).
-		Error
+	hotels, err := h.hotelService.GetHotels(domain.HotelFilter{City: city})
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		w.Write([]byte(err.Error()))
@@ -86,8 +50,8 @@ func (h *Handler) CreateHotels(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var hotel Hotel
-	if err := json.Unmarshal(bs, &hotel); err != nil {
+	var hotel *domain.Hotel
+	if err := json.Unmarshal(bs, hotel); err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		w.Write([]byte(err.Error()))
 		return
@@ -95,7 +59,7 @@ func (h *Handler) CreateHotels(w http.ResponseWriter, r *http.Request) {
 
 	fmt.Printf("Hotel: %+v\n", hotel)
 
-	err = h.db.Table("hotels").Create(&hotel).Error
+	err = h.hotelService.CreateHotel(hotel)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		w.Write([]byte(err.Error()))
