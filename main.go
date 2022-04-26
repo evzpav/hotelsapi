@@ -4,12 +4,21 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"log"
 	"net/http"
+	"os"
 
 	"github.com/gorilla/mux"
+	"gorm.io/driver/postgres"
+	"gorm.io/gorm"
+)
+
+var (
+	postgresURL string = os.Getenv("POSTGRES_URL")
 )
 
 type Hotel struct {
+	ID            int     `json:"id"`
 	Name          string  `json:"name"`
 	City          string  `json:"city"`
 	NrOfEmployees int     `json:"nrOfEmployees"`
@@ -17,36 +26,48 @@ type Hotel struct {
 	Active        bool    `json:"active"`
 }
 
-func main() {
-	r := mux.NewRouter()
-	r.HandleFunc("/hotels", getHotels).Methods(http.MethodGet)
-	r.HandleFunc("/hotels", createHotels).Methods(http.MethodPost)
-	http.ListenAndServe(":7070", r)
+type Handler struct {
+	db *gorm.DB
 }
 
-func getHotels(w http.ResponseWriter, r *http.Request) {
+func NewHandler(db *gorm.DB) *Handler {
+	return &Handler{
+		db: db,
+	}
+}
+
+func main() {
+	r := mux.NewRouter()
+	fmt.Println(postgresURL)
+	db, err := gorm.Open(postgres.Open(postgresURL), &gorm.Config{})
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	h := NewHandler(db)
+
+	r.HandleFunc("/hotels", h.GetHotels).Methods(http.MethodGet)
+	r.HandleFunc("/hotels", h.CreateHotels).Methods(http.MethodPost)
+
+	fmt.Printf("Server running on http://localhost:7070\n")
+
+	log.Fatal(http.ListenAndServe(":7070", r))
+}
+
+func (h *Handler) GetHotels(w http.ResponseWriter, r *http.Request) {
 	queryParams := r.URL.Query()
 	city := queryParams.Get("city")
 
 	fmt.Println(city)
 
-	// TODO db select
-
-	hotels := []Hotel{
-		{
-			Name:          "Sheraton",
-			City:          "São Paulo",
-			NrOfEmployees: 300,
-			Revenue:       456456.9,
-			Active:        true,
-		},
-		{
-			Name:          "Novotel",
-			City:          "Florianópolis",
-			NrOfEmployees: 244,
-			Revenue:       345456.9,
-			Active:        true,
-		},
+	var hotels []*Hotel
+	err := h.db.Table("hotels").
+		Find(&hotels).
+		Error
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		w.Write([]byte(err.Error()))
+		return
 	}
 
 	bs, err := json.Marshal(hotels)
@@ -60,7 +81,7 @@ func getHotels(w http.ResponseWriter, r *http.Request) {
 	w.Write(bs)
 }
 
-func createHotels(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) CreateHotels(w http.ResponseWriter, r *http.Request) {
 	bs, err := ioutil.ReadAll(r.Body)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
@@ -77,8 +98,20 @@ func createHotels(w http.ResponseWriter, r *http.Request) {
 
 	fmt.Printf("Hotel: %+v\n", hotel)
 
-	//TODO db insert
+	err = h.db.Table("hotels").Create(&hotel).Error
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		w.Write([]byte(err.Error()))
+		return
+	}
+
+	respBS, err := json.Marshal(hotel)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		w.Write([]byte(err.Error()))
+		return
+	}
 
 	w.WriteHeader(http.StatusOK)
-	// w.Write(bs)
+	w.Write(respBS)
 }
