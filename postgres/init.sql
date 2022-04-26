@@ -1,6 +1,6 @@
-CREATE USER "hotelscrud";
-ALTER USER "hotelscrud" WITH ENCRYPTED PASSWORD 'hotelscrudpass';
-CREATE DATABASE "hotelscrud";
-GRANT ALL PRIVILEGES ON DATABASE "hotelscrud" TO "hotelscrud";
-\c "hotelscrud"
+CREATE USER "hotelsapi";
+ALTER USER "hotelsapi" WITH ENCRYPTED PASSWORD 'hotelsapipass';
+CREATE DATABASE "hotelsapi";
+GRANT ALL PRIVILEGES ON DATABASE "hotelsapi" TO "hotelsapi";
+\c "hotelsapi"
 CREATE EXTENSION pgcrypto;
