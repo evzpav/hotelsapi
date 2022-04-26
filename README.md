@@ -1,20 +1,28 @@
 # Hotels API
 
+Exemplo de API em Golang usando [Gorilla Mux](https://github.com/gorilla/mux) e [GORM](https://gorm.io/)
 
-- Criar struct hotel
+1) Criar rotas e converter json->struct struct->json:
 
-```json
-    {
-        "name": "Costão do Santinho",
-        "city": "Florianópolis",
-        "nrOfEmployees": 100,
-        "revenue": 2342343.99,
-        "active": true
-    }
+    - Criar struct hotel
+    ```json
+        {
+            "name": "Costão do Santinho",
+            "city": "Florianópolis",
+            "nrOfEmployees": 100,
+            "revenue": 2342343.99,
+            "active": true
+        }
 
-```
-- Pegar boiler plate de qualquer rota e jogar na main: https://github.com/gorilla/mux#examples
-- Criar GET, city como queryParam e retorna array de Hotels
-- Criar POST, recebe hotel, parse do body, unmarshal
-- 
-- https://gorm.io/docs/connecting_to_the_database.html#PostgreSQL
+    ```
+    - Pegar boiler plate de qualquer rota e jogar na main: https://github.com/gorilla/mux#examples
+    - Criar GET, city como queryParam e retorna array de Hotels
+    - Criar POST, recebe hotel, parse do body, unmarshal
+
+2) Conectar Postgres e fazer insert e select:
+    - Adicionar lib para acesso ao Postgres: https://gorm.io/docs/connecting_to_the_database.html#PostgreSQL
+    - Inicializar Postgres (*gorm.DB)
+    - Criar handler struct e passar *gorm.DB
+    - Criar tabela no Postgres init.sql
+    - Criar insert com GORM
+    - Criar select com GORM
