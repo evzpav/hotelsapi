@@ -1,8 +1,8 @@
-# Hotels API
+# Go Hotels API
 
 Exemplo de API em Golang usando [Gorilla Mux](https://github.com/gorilla/mux) e [GORM](https://gorm.io/)
 
-1) Criar rotas e converter json->struct struct->json:
+1) Criar rotas, handlers e converter json->struct struct->json:
 
     - Criar struct hotel
     ```json
@@ -19,7 +19,7 @@ Exemplo de API em Golang usando [Gorilla Mux](https://github.com/gorilla/mux) e 
     - Criar GET, city como queryParam e retorna array de Hotels
     - Criar POST, recebe hotel, parse do body, unmarshal
 
-2) Conectar Postgres e fazer insert e select:
+2) Conectar Postgres e fazer insert e select no banco:
     - Adicionar lib para acesso ao Postgres: https://gorm.io/docs/connecting_to_the_database.html#PostgreSQL
     - Inicializar Postgres (*gorm.DB)
     - Criar handler struct e passar *gorm.DB
@@ -27,3 +27,4 @@ Exemplo de API em Golang usando [Gorilla Mux](https://github.com/gorilla/mux) e 
     - Criar insert com GORM
     - Criar select com GORM
 3) Refatorar em pacotes
+4) Adicionar test unitários

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"hotelsapi/internal/domain"
 	"hotelsapi/internal/handler"
 	"hotelsapi/internal/server"
@@ -16,6 +17,7 @@ import (
 
 var (
 	postgresURL string = os.Getenv("POSTGRES_URL")
+	port        string = os.Getenv("PORT")
 )
 
 func main() {
@@ -36,5 +38,8 @@ func main() {
 
 	s.Routes()
 
-	log.Fatal(http.ListenAndServe(":7070", s))
+	fmt.Printf("Server running on http://localhost:%s\n", port)
+	
+	log.Fatal(http.ListenAndServe(":"+port, s))
+
 }

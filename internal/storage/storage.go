@@ -7,27 +7,30 @@ import (
 )
 
 type Storage struct {
-	db *gorm.DB
+	tableName string
+	db        *gorm.DB
 }
 
 func New(db *gorm.DB) *Storage {
 	return &Storage{
-		db: db,
+		tableName: "hotels",
+		db:        db,
 	}
 }
 
 func (s *Storage) InsertHotel(hotel *domain.Hotel) error {
-	return s.db.Table("hotels").Create(&hotel).Error
+	return s.db.Debug().Table(s.tableName).Create(&hotel).Error
 }
 
 func (s *Storage) GetHotels(hf domain.HotelFilter) ([]*domain.Hotel, error) {
 	var hotels []*domain.Hotel
-	tx := s.db.Table("hotels")
+	
+	tx := s.db.Debug().Table(s.tableName)
 
 	if hf.City != "" {
 		tx.Where("city = ?", hf.City)
 	}
-	
+
 	err := tx.
 		Find(&hotels).
 		Error
