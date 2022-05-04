@@ -1,5 +1,11 @@
 # Go Hotels API
 
+Checkout other branches:
+ - step01 (handlers created)
+ - step02 (connected to Postgres)
+ - step03 (refactored into packages)
+ - step04 (completed refactor with unit tests)
+
 Exemplo de API em Golang usando [Gorilla Mux](https://github.com/gorilla/mux) e [GORM](https://gorm.io/)
 
 1) Criar rotas, handlers e converter json->struct struct->json:
